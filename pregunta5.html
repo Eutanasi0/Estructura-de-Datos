@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            background-color: black;
+            color: white;
+        
+        }
+        .container {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .form-div {
+            display: grid;
+            grid-template-rows: repeat(2, auto);
+            gap: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        label, input {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-div">
+            <label for="postre">Postre</label>
+            <input type="text" id="postre">
+            <label for="ingrediente">Ingrediente</label>
+            <input type="text" id="ingrediente">
+        </div>
+        <div class="buttons">
+            <button onclick="agregarIngrediente()">Agregar</button>
+            <button onclick="mostrarTodo()">Mostrar todo</button>
+            <button onclick="buscarPostre()">Buscar</button>
+            <button onclick="darBaja()">Eliminar</button>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Postre</th>
+                <th>Ingredientes</th>
+            </tr>
+        </thead>
+        <tbody id="tablaPostres">
+        </tbody>
+
+
+    
+
+
+    <script>
+        // Definición de la clase Nodo para la lista enlazada
+        class Nodo {
+            constructor(valor) {
+                this.valor = valor;
+                this.siguiente = null;
+            }
+        }
+
+        // Definición de la clase ListaEnlazada
+        class ListaEnlazada {
+            constructor() {
+                this.cabeza = null;
+            }
+
+            agregar(valor) {
+                const nuevoNodo = new Nodo(valor);
+                if (!this.cabeza) {
+                    this.cabeza = nuevoNodo;
+                } else {
+                    let actual = this.cabeza;
+                    while (actual.siguiente) {
+                        actual = actual.siguiente;
+                    }
+                    actual.siguiente = nuevoNodo;
+                }
+            }
+
+            eliminar(valor) {
+                if (!this.cabeza) {
+                    return;
+                }
+
+                if (this.cabeza.valor === valor) {
+                    this.cabeza = this.cabeza.siguiente;
+                    return;
+                }
+
+                let actual = this.cabeza;
+                while (actual.siguiente) {
+                    if (actual.siguiente.valor === valor) {
+                        actual.siguiente = actual.siguiente.siguiente;
+                        return;
+                    }
+                    actual = actual.siguiente;
+                }
+            }
+
+            imprimir() {
+                let actual = this.cabeza;
+                while (actual) {
+                    console.log(actual.valor);
+                    actual = actual.siguiente;
+                }
+            }
+        }
+
+        // Definición de la estructura de datos para los postres y sus ingredientes
+        let postres = new ListaEnlazada();
+
+        // Función para agregar un postre junto con sus ingredientes
+        function agregarPostreConIngredientes(nombrePostre, ...ingredientes) {
+            const nuevoPostre = { nombre: nombrePostre, ingredientes: new ListaEnlazada() };
+            for (let ingrediente of ingredientes) {
+                nuevoPostre.ingredientes.agregar(ingrediente);
+            }
+                postres.agregar(nuevoPostre);
+            }
+
+            // Agregar postres con sus ingredientes
+            agregarPostreConIngredientes("Brownie", "Chocolate", "Nuez");
+            agregarPostreConIngredientes("Cheesecake", "Queso crema", "Galleta");
+            agregarPostreConIngredientes("Tiramisú", "Café", "Queso mascarpone", "Cacao");
+            agregarPostreConIngredientes("Pastel", "Zanahoria", "Nuez");
+
+
+        function mostrarTodo() {
+            // Limpiar el contenido previo de la tabla
+            const tablaPostres = document.getElementById('tablaPostres');
+            tablaPostres.innerHTML = '';
+
+            let actual = postres.cabeza;
+            while (actual) {
+                const fila = document.createElement('tr');
+                const celdaPostre = document.createElement('td');
+                celdaPostre.textContent = actual.valor.nombre;
+                fila.appendChild(celdaPostre);
+                const celdaIngredientes = document.createElement('td');
+                let actualIngrediente = actual.valor.ingredientes.cabeza;
+                while (actualIngrediente) {
+                    celdaIngredientes.textContent += actualIngrediente.valor + ', ';
+                    actualIngrediente = actualIngrediente.siguiente;
+                }
+                fila.appendChild(celdaIngredientes);
+                tablaPostres.appendChild(fila);
+                actual = actual.siguiente;
+            }
+        }
+
+    function buscarPostre() {
+        const nombrePostre = document.getElementById('postre').value;
+        // Limpiar el contenido previo de la tabla
+        const tablaPostres = document.getElementById('tablaPostres');
+        tablaPostres.innerHTML = '';
+
+        let actual = postres.cabeza;
+        while (actual) {
+            if (actual.valor.nombre === nombrePostre) {
+                //muestra postre en la tabla
+                const fila = document.createElement('tr');
+                const celdaPostre = document.createElement('td');
+                celdaPostre.textContent = actual.valor.nombre;
+                fila.appendChild(celdaPostre);
+                const celdaIngredientes = document.createElement('td');
+                let actualIngrediente = actual.valor.ingredientes.cabeza;
+                while (actualIngrediente) {
+                    celdaIngredientes.textContent += actualIngrediente.valor + ', ';
+                    actualIngrediente = actualIngrediente.siguiente;
+                }
+                fila.appendChild(celdaIngredientes);
+                tablaPostres.appendChild(fila);
+
+                console.log(actual.valor);
+                return;
+            }
+            actual = actual.siguiente;
+        }
+        console.log('No se encontró el postre');
+    }
+
+    //funcion para agregar ingredientes a psotres segun su nombre
+    function agregarIngrediente() {
+        const nombrePostre = document.getElementById('postre').value;
+        const ingrediente = document.getElementById('ingrediente').value;
+        tablaPostres.innerHTML = '';
+        let actual = postres.cabeza;
+        while (actual) {
+            if (actual.valor.nombre === nombrePostre) {
+                actual.valor.ingredientes.agregar(ingrediente);
+                return;
+            }
+            actual = actual.siguiente;
+        }
+        console.log('No se encontró el postre');
+    }
+
+
+
+        
+    </script>
+</body>
+
+</html>
