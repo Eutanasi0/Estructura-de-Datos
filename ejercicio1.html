@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tarea</title>
+    <title>Tarea</title>
     <style>
-        body{
+        body {
             background-color: black;
             color: white;
         }
@@ -14,7 +14,7 @@
 <body>
 
     <p>Seleccione 2 archivos de texto para comparar</p>
- 
+
     <div>
         <input type="file" class="texto1" id="texto1">
     </div>
@@ -28,60 +28,65 @@
     <div id="resultado"></div>
 </body>
 <script>
-    
-function dividirTextoEnPalabras(texto) {
-    return texto.match(/[a-zA-ZáéíóúüÁÉÍÓÚÜ]+/g);
-}
-
-function comparar() {
-
-    const archivoTexto1 = document.getElementById('texto1').files[0];
-    const archivoTexto2 = document.getElementById('texto2').files[0];
-
-    let palabrasTexto1 = new Map();
-    let palabrasTexto2 = new Map();
-
-    if (archivoTexto1 && archivoTexto2) {
-        const reader1 = new FileReader();
-        const reader2 = new FileReader();
-
-        reader1.onload = function(event) {
-            const palabras = dividirTextoEnPalabras(event.target.result);
-            palabras.forEach(palabra => palabrasTexto1.set(palabra, (palabrasTexto1.get(palabra) || 0) + 1));
-            
-            console.log("Palabras del texto 1:", palabrasTexto1);
-        };
-
-        reader2.onload = function(event) {
-            const palabras = dividirTextoEnPalabras(event.target.result);
-            palabras.forEach(palabra => palabrasTexto2.set(palabra, (palabrasTexto2.get(palabra) || 0) + 1));
-            
-            console.log("Palabras del texto 2:", palabrasTexto2);
-        };
-
-
-        setTimeout(() => {
-            let palabrasComunes = 0;
-            palabrasTexto1.forEach((value, key) => {
-                if (palabrasTexto2.has(key)) {
-                    palabrasComunes += Math.min(value, palabrasTexto2.get(key));
-                }
-            });
-            const suma = [...palabrasTexto1.values()].reduce((acc, val) => acc + val, 0) + [...palabrasTexto2.values()].reduce((acc, val) => acc + val, 0);
-            const percentage = (palabrasComunes * 2 / suma) * 100;
-            const percentageTexto1 = (palabrasComunes / [...palabrasTexto1.values()].reduce((acc, val) => acc + val, 0)) * 100;
-            const percentagetexto2 = (palabrasComunes / [...palabrasTexto2.values()].reduce((acc, val) => acc + val, 0)) * 100;
-            console.log("La suma de las palabras únicas de los dos textos es:", suma);
-            console.log("El porcentaje de palabras comunes es:", percentage, "%");
-            document.getElementById('resultado').innerHTML = "<p>El porcentaje de palabras comunes de el texto 1 es: " + percentageTexto1.toFixed(2) + "%</p>";
-            document.getElementById('resultado').innerHTML += "<p>El porcentaje de palabras comunes de el texto 2 es: " + percentagetexto2.toFixed(2) + "%</p>";
-        }, 1000);
-
-    } else {
-        alert("Por favor, seleccione dos archivos de texto.");
+    function dividirTextoEnPalabras(texto) {
+        return texto.match(/[a-zA-ZáéíóúüÁÉÍÓÚÜ]+/g);
     }
 
-}
+    function leerArchivo(archivo) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(archivo);
+        });
+    }
+
+    async function comparar() {
+        const archivoTexto1 = document.getElementById('texto1').files[0];
+        const archivoTexto2 = document.getElementById('texto2').files[0];
+
+        if (archivoTexto1 && archivoTexto2) {
+            try {
+                const texto1 = await leerArchivo(archivoTexto1);
+                const texto2 = await leerArchivo(archivoTexto2);
+
+                const palabrasTexto1 = new Map();
+                const palabrasTexto2 = new Map();
+
+                dividirTextoEnPalabras(texto1).forEach(palabra => 
+                    palabrasTexto1.set(palabra, (palabrasTexto1.get(palabra) || 0) + 1)
+                );
+
+                dividirTextoEnPalabras(texto2).forEach(palabra => 
+                    palabrasTexto2.set(palabra, (palabrasTexto2.get(palabra) || 0) + 1)
+                );
+
+                let palabrasComunes = 0;
+                palabrasTexto1.forEach((value, key) => {
+                    if (palabrasTexto2.has(key)) {
+                        palabrasComunes += Math.min(value, palabrasTexto2.get(key));
+                    }
+                });
+
+                const totalPalabrasTexto1 = [...palabrasTexto1.values()].reduce((acc, val) => acc + val, 0);
+                const totalPalabrasTexto2 = [...palabrasTexto2.values()].reduce((acc, val) => acc + val, 0);
+                const porcentajeTexto1 = (palabrasComunes / totalPalabrasTexto1) * 100;
+                const porcentajeTexto2 = (palabrasComunes / totalPalabrasTexto2) * 100;
+
+                document.getElementById('resultado').innerHTML = 
+                    `<p>El porcentaje de palabras comunes del texto 1 es: ${porcentajeTexto1.toFixed(2)}%</p>`;
+                document.getElementById('resultado').innerHTML += 
+                    `<p>El porcentaje de palabras comunes del texto 2 es: ${porcentajeTexto2.toFixed(2)}%</p>`;
+            } catch (error) {
+                console.error("Error al leer los archivos:", error);
+            }
+        } else {
+            alert("Por favor, seleccione dos archivos de texto.");
+        }
+    }
+</script>
+</html>
+
 
 </script>
 </html>

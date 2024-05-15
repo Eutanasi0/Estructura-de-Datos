@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Heapsort con Colas Prioritarias</title>
+</head>
+<body>
+    <h1>Heapsort con Colas Prioritarias</h1>
+    <p>Introduce una lista de números separados por comas:</p>
+    <input type="text" id="inputNumbers">
+    <button onclick="heapSort()">Ordenar</button>
+    <p id="output"></p>
+
+    <script>
+        // Función para ordenar la lista de números utilizando heapsort
+        function heapSort() {
+            const input = document.getElementById('inputNumbers').value;
+            const numbers = input.split(',').map(num => parseInt(num.trim()));
+
+            // Crear una cola prioritaria y agregar los números a la cola
+            const pq = new PriorityQueue();
+            numbers.forEach(num => pq.enqueue(num));
+            // Extraer los números de la cola prioritaria y agregarlos a un array
+
+            let sortedNumbers = [];
+            while (!pq.isEmpty()) {
+                sortedNumbers.push(pq.dequeue());
+            }
+
+            document.getElementById('output').textContent = sortedNumbers.join(', ');
+        }
+
+        // Implementación de una cola prioritaria (min heap)
+        class PriorityQueue {
+            constructor() {
+                this.heap = [];
+            }
+            // Agregar un valor a la cola
+            enqueue(value) {
+                this.heap.push(value);
+                this.bubbleUp();
+            }
+            // Mover un valor hacia arriba en el heap
+            bubbleUp() {
+                let index = this.heap.length - 1;
+                while (index > 0) {
+                    let element = this.heap[index];
+                    let parentIndex = Math.floor((index - 1) / 2);
+                    let parent = this.heap[parentIndex];
+                    if (parent <= element) break;
+                    this.heap[parentIndex] = element;
+                    this.heap[index] = parent;
+                    index = parentIndex;
+                }
+            }
+            // Extraer el valor mínimo de la cola
+
+            dequeue() {
+                const min = this.heap[0];
+                const end = this.heap.pop();
+                if (this.heap.length > 0) {
+                    this.heap[0] = end;
+                    this.bubbleDown();
+                }
+                return min;
+            }
+            // Mover un valor hacia abajo en el heap
+
+            bubbleDown() {
+                let index = 0;
+                const length = this.heap.length;
+                const element = this.heap[0];
+                while (true) {
+                    let leftChildIdx = 2 * index + 1;
+                    let rightChildIdx = 2 * index + 2;
+                    let leftChild, rightChild;
+                    let swap = null;
+
+                    if (leftChildIdx < length) {
+                        leftChild = this.heap[leftChildIdx];
+                        if (leftChild < element) {
+                            swap = leftChildIdx;
+                        }
+                    }
+                    if (rightChildIdx < length) {
+                        rightChild = this.heap[rightChildIdx];
+                        if ((swap === null && rightChild < element) ||
+                            (swap !== null && rightChild < leftChild)) {
+                            swap = rightChildIdx;
+                        }
+                    }
+
+                    if (swap === null) break;
+                    this.heap[index] = this.heap[swap];
+                    this.heap[swap] = element;
+                    index = swap;
+                }
+            }
+            // Verificar si la cola está vacía
+
+            isEmpty() {
+                return this.heap.length === 0;
+            }
+        }
+    </script>
+</body>
+</html>
