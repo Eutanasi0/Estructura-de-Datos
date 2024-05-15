@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Lista Doblemente Enlazada</h1>
+    <p>para ver el proceso, abrir la consola presionando f12</p>
+    <input type="number" id="numberInput" placeholder="Ingrese un número">
+    <button onclick="addNumber()">Agregar a la lista</button>
+
+    
+    <div id="list"></div>
+
+    <button onclick="verificar()">Verificar si los enteros son solo 1 o 0</button>
+    <div id="trueOrFalse"></div>
+
+    <script>
+        //creo la clase nodo y la clase lista doblemente enlazada
+        class Node {
+            constructor(data) {
+                //el nodo tiene un dato, un puntero al siguiente nodo y un puntero al nodo anterior
+                this.data = data;
+                this.next = null;
+                this.prev = null;
+            }
+        }
+
+        class DoublyLinkedList {
+            constructor() {
+                //la lista tiene un puntero al primer nodo y un puntero al último nodo
+                this.head = null;
+                this.tail = null;
+            }
+
+            add(data) {
+                
+                //creo un nuevo nodo con el dato ingresado
+                const newNode = new Node(data);
+                //si la lista está vacía, el nuevo nodo es el primer y último nodo
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                } else {
+                    this.tail.next = newNode;
+                    newNode.prev = this.tail;
+                    this.tail = newNode;
+                }
+            }
+
+            toArray() {
+                //creo un array con los datos de los nodos de la lista
+                const elements = [];
+                
+                let current = this.head;
+                while (current) {
+                    elements.push(current.data);
+                    current = current.next;
+                }
+                return elements;
+            }
+        }
+        //creo una lista doblemente enlazada
+        const list = new DoublyLinkedList();
+        //función para agregar un número a la lista
+        function addNumber(){
+            //obtengo el número ingresado
+            const input = document.getElementById('numberInput');
+            const number = parseInt(input.value);
+            //si el valor ingresado es un número, lo agrego a la lista y limpio el input
+            if (!isNaN(number)) {
+                list.add(number);
+                input.value = '';
+                display();
+            }
+        }
+        //función para mostrar los elementos de la lista
+
+        function display(){
+            //obtengo el div donde se mostrarán los elementos de la lista
+            const listDiv = document.getElementById('list');
+            listDiv.innerHTML = '';
+            //obtengo los elementos de la lista y los muestro en el div
+
+            const elements = list.toArray();
+            //creo un div por cada elemento de la lista
+            elements.forEach(element => {
+                const div = document.createElement('div');
+                div.textContent = element;
+                listDiv.appendChild(div);
+            });
+
+            console.log(elements);
+        }
+        //función para verificar si los enteros de la lista son solo 0 o 1
+        function verificar(){
+            //obtengo los elementos de la lista
+            const elements = list.toArray();
+            //verifico si todos los elementos son 0 o 1
+            const tof = document.getElementById('trueOrFalse');
+            let soloes01 = true;
+            elements.forEach(element => {
+                if(element != 0 && element != 1){
+                    soloes01 = false;
+                    //que paarezca false en tof
+                    tof.textContent = 'False';
+
+
+                }else{
+                    //que aparezca true en tof
+                    tof.textContent = 'True';
+                }
+            });
+            console.log(soloes01);
+
+        }
+    </script>
+    
+</body>
+</html>

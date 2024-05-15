@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section id="bloque">
+        <h1>Convertir de infija a prefija</h1>
+        <p>suma = +</p>
+        <p>resta = -</p>
+        <p>multiplicación = *</p>
+        <p>división = /</p>
+        <p>potencia = ^</p>
+        <form id="myForm" method="post">
+            <label for="expresion">Expresión infija:</label>
+            <input type="text" name="expresion" id="expresion" required>
+            <button type="button" onclick="conversionusandoPilas()">Convertir</button>
+        </form>
+        <h2>Expresión prefija:</h2>
+        <h2 id="conversion"></h2>
+        <h2>Resultado de la expresión:</h2>
+        <h2 id="resultado"></h2>
+    </section>
+    <script>
+        function conversionusandoPilas() {
+            let expresion = document.getElementById('expresion').value;
+            let pila = [];
+            let prefija = [];
+            let operadores = ['+', '-', '*', '/', '^'];
+            let jerarquia = {
+                '+': 1,
+                '-': 1,
+                '*': 2,
+                '/': 2,
+                '^': 3
+            };
+
+            // Paso 1: Invertir la expresión
+            expresion = expresion.split('').reverse().join('');
+
+            // Paso 2: Cambiar los paréntesis
+            expresion = expresion.replace(/\(/g, 'temp').replace(/\)/g, '(').replace(/temp/g, ')');
+
+            for (let i = 0; i < expresion.length; i++) {
+                let c = expresion[i];
+
+                if (c === '(') {
+                    pila.push(c);
+                } else if (c === ')') {
+                    while (pila.length && pila[pila.length - 1] !== '(') {
+                        prefija.push(pila.pop());
+                    }
+                    pila.pop();
+                } else if (operadores.includes(c)) {
+                    while (pila.length && jerarquia[pila[pila.length - 1]] > jerarquia[c]) {
+                        prefija.push(pila.pop());
+                    }
+                    pila.push(c);
+                } else {
+                    prefija.push(c);
+                }
+            }
+            while (pila.length) {
+                prefija.push(pila.pop());
+            }
+
+            // Paso 4: Invertir el resultado
+            prefija = prefija.reverse().join('');
+
+            document.getElementById('conversion').innerHTML = prefija;
+
+            // Evaluar la expresión prefija
+            let resultado = evaluarPrefija(prefija.split(''));
+            document.getElementById('resultado').innerHTML = resultado;
+        }
+
+        function evaluarPrefija(expresion) {
+            let pila = [];
+
+            for (let i = expresion.length - 1; i >= 0; i--) {
+                let c = expresion[i];
+
+                if (!isNaN(c)) {
+                    pila.push(Number(c));
+                } else {
+                    let op1 = pila.pop();
+                    let op2 = pila.pop();
+                    switch (c) {
+                        case '+':
+                            pila.push(op1 + op2);
+                            break;
+                        case '-':
+                            pila.push(op1 - op2);
+                            break;
+                        case '*':
+                            pila.push(op1 * op2);
+                            break;
+                        case '/':
+                            pila.push(op1 / op2);
+                            break;
+                        case '^':
+                            pila.push(Math.pow(op1, op2));
+                            break;
+                    }
+                }
+            }
+            return pila[0];
+        }
+
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+        });
+    </script>
+</body>
+</html>
+
